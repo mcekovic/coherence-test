@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<cache-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://xmlns.oracle.com/coherence/coherence-cache-config"
+              xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-cache-config coherence-cache-config.xsd
+              class://com.oracle.coherence.spring.SpringNamespaceHandler coherence-spring-config.xsd"
+              xmlns:spring="class://com.oracle.coherence.spring.SpringNamespaceHandler">
+
+	<spring:bean-factory>
+		<spring:application-context-uri>test-app-context.xml</spring:application-context-uri>
+	</spring:bean-factory>
+
+	<caching-scheme-mapping>
+		<cache-mapping>
+			<cache-name>TestItem</cache-name>
+			<scheme-name>distributed-cache-service</scheme-name>
+		</cache-mapping>
+	</caching-scheme-mapping>
+
+	<caching-schemes>
+		<distributed-scheme>
+			<scheme-name>distributed-cache-service</scheme-name>
+			<service-name>distributed-cache-service</service-name>
+			<serializer>
+				<instance>
+					<class-name>com.tangosol.io.pof.SafeConfigurablePofContext</class-name>
+					<init-params>
+						<init-param>
+							<param-type>String</param-type>
+							<param-value>test-pof-config.xml</param-value>
+						</init-param>
+					</init-params>
+				</instance>
+			</serializer>
+			<thread-count>4</thread-count>
+			<backing-map-scheme>
+				<read-write-backing-map-scheme>
+					<internal-cache-scheme>
+						<local-scheme>
+							<scheme-ref>binary-backing-map</scheme-ref>
+						</local-scheme>
+					</internal-cache-scheme>
+					<cachestore-scheme>
+						<class-scheme>
+							<spring:bean>
+								<spring:bean-name>store{cache-name}</spring:bean-name>
+							</spring:bean>
+						</class-scheme>
+					</cachestore-scheme>
+				</read-write-backing-map-scheme>
+			</backing-map-scheme>
+			<autostart>true</autostart>
+		</distributed-scheme>
+
+		<local-scheme>
+			<scheme-name>binary-backing-map</scheme-name>
+			<eviction-policy>HYBRID</eviction-policy>
+			<high-units>{back-size-limit 0}</high-units>
+			<unit-calculator>BINARY</unit-calculator>
+			<!-- cached data never expire -->
+			<expiry-delay>0</expiry-delay>
+		</local-scheme>
+	</caching-schemes>
+</cache-config>
