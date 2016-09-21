@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<cache-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://xmlns.oracle.com/coherence/coherence-cache-config"
+              xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-cache-config coherence-cache-config.xsd
+                                  class://com.oracle.coherence.spring.SpringNamespaceHandler coherence-spring-config.xsd"
+              xmlns:element="class://com.oracle.coherence.common.namespace.preprocessing.XmlPreprocessingNamespaceHandler"
+              xmlns:spring="class://com.oracle.coherence.spring.SpringNamespaceHandler"
+              element:introduce-cache-config="test-cache-config.xml">
+
+	<spring:bean-factory>
+		<spring:application-context-uri>test-app-context.xml</spring:application-context-uri>
+	</spring:bean-factory>
+
+</cache-config>

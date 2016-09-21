@@ -21,7 +21,7 @@ public class CoherenceMiscIT {
 		cluster = ClusterMemberGroupUtils.newBuilder()
 			.setClusterMemberGroupInstanceClassName(SimpleKeepAliveClusterMemberGroup.class.getName())
 			.setStorageEnabledCount(2)
-			.setCacheConfiguration("test-cache-config.xml")
+			.setCacheConfiguration("top-test-cache-config.xml")
 			.setAdditionalSystemProperty("tangosol.xml.validation.disable", true)
 			.buildAndConfigureForStorageDisabledClient();
 	}

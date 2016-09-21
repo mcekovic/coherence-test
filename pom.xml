@@ -16,6 +16,7 @@
 		<spring.version>4.3.2.RELEASE</spring.version>
 		<coherence.version>12.1.2</coherence.version>
 		<coherence-spring.version>1.0.2</coherence-spring.version>
+		<coherence-common.version>12.3.2</coherence-common.version>
 		<littlegrid.version>2.15.2</littlegrid.version>
 		<testng.version>6.9.10</testng.version>
 		<assertj.version>2.5.0</assertj.version>
@@ -48,6 +49,11 @@
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>com.oracle.coherence.incubator</groupId>
+			<artifactId>coherence-common</artifactId>
+			<version>${coherence-common.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
