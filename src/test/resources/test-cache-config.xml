@@ -14,6 +14,10 @@
 			<cache-name>TestItem</cache-name>
 			<scheme-name>distributed-cache-service</scheme-name>
 		</cache-mapping>
+		<cache-mapping>
+			<cache-name>TestItem2</cache-name>
+			<scheme-name>distributed-cache-service</scheme-name>
+		</cache-mapping>
 	</caching-scheme-mapping>
 
 	<caching-schemes>
