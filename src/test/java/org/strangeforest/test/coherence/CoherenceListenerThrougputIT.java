@@ -74,7 +74,7 @@ public class CoherenceListenerThrougputIT {
 		assertThat(configurablePofContext.getClass(userTypeIdentifier)).isEqualTo(BigItem.class);
 
 		Binary binary = ExternalizableHelper.toBinary(new BigItem(12345L, TEXT + "123456"), configurablePofContext);
-		systemOutPrintln("BigItem size: " + binary.toByteArray().length);
+		systemOutPrintln("BigItem size: " + binary.length());
 	}
 
 	@Test
