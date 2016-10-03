@@ -10,5 +10,12 @@
 				<class-name>org.strangeforest.test.coherence.TestItemPofSerializer</class-name>
 			</serializer>
 		</user-type>
+		<user-type>
+			<type-id>1001</type-id>
+			<class-name>org.strangeforest.test.coherence.BigItem</class-name>
+			<serializer>
+				<class-name>org.strangeforest.test.coherence.BigItemPofSerializer</class-name>
+			</serializer>
+		</user-type>
 	</user-type-list>
 </pof-config>

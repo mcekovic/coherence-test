@@ -27,6 +27,8 @@ public class CoherenceMiscIT {
 			.setStorageEnabledCount(2)
 			.setCacheConfiguration("top-test-cache-config.xml")
 			.buildAndConfigureForStorageDisabledClient();
+		DistributedCacheService service = (DistributedCacheService) CacheFactory.getCache("TestItem").getCacheService();
+		System.out.println("Partitions: " + service.getPartitionCount());
 	}
 
 	@AfterClass

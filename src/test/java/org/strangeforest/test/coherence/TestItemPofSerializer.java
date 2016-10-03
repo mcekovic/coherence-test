@@ -10,7 +10,6 @@ public class TestItemPofSerializer implements PofSerializer {
 
 	private static final int ID = 0;
 	private static final int NAME = 1;
-	private static final int DESCRIPTION = 2;
 
 	@Override public void serialize(PofWriter out, Object obj) throws IOException {
 		TestItem item = (TestItem)obj;
