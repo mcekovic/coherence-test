@@ -114,14 +114,40 @@ public class CoherenceMiscIT {
 	}
 
 	@Test
-	public void whenNewItemsAreAddedContinuousQueryIsNotified() throws InterruptedException {
-		NamedCache cache = CacheFactory.getCache("TestItem2");
+	public void whenMapListenerIsAddedDeletedItemsAreNotified() throws InterruptedException {
+		NamedCache cache = CacheFactory.getCache("TestItem");
 		cache.put(5,  new TestItem(5, "Pera5"));
 
 		Semaphore semaphore = new Semaphore(0);
 		MapListener listener = spy(new ReleasingMapListener(semaphore));
+		try {
+			cache.addMapListener(listener);
+			cache.remove(5);
+
+			assertThat(semaphore.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
+			ArgumentCaptor<MapEvent> mapEventCaptor = ArgumentCaptor.forClass(MapEvent.class);
+			verify(listener).entryDeleted(mapEventCaptor.capture());
+			verifyZeroInteractions(listener);
+			MapEvent mapEvent = mapEventCaptor.getValue();
+			assertThat(mapEvent).isNotNull();
+			assertThat(mapEvent.getKey()).isEqualTo(5);
+			assertThat(mapEvent.getNewValue()).isNull();
+			assertThat(((TestItem)mapEvent.getOldValue()).getName()).isEqualTo("Pera5");
+		}
+		finally {
+			cache.removeMapListener(listener);
+		}
+	}
+
+	@Test
+	public void whenNewItemsAreAddedContinuousQueryIsNotified() throws InterruptedException {
+		NamedCache cache = CacheFactory.getCache("TestItem2");
+		cache.put(5,  new TestItem(5, "Pera6"));
+
+		Semaphore semaphore = new Semaphore(0);
+		MapListener listener = spy(new ReleasingMapListener(semaphore));
 		ContinuousQueryCache ccCache = new ContinuousQueryCache(cache, new NullFilter(), listener);
-		cache.put(6,  new TestItem(6, "Pera6"));
+		cache.put(6,  new TestItem(6, "Pera7"));
 
 		assertThat(semaphore.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
 
@@ -130,7 +156,7 @@ public class CoherenceMiscIT {
 		MapEvent mapEvent = mapEventCaptor.getValue();
 		assertThat(mapEvent).isNotNull();
 		assertThat(mapEvent.getKey()).isEqualTo(6);
-		assertThat(((TestItem)mapEvent.getNewValue()).getName()).isEqualTo("Pera6");
+		assertThat(((TestItem)mapEvent.getNewValue()).getName()).isEqualTo("Pera7");
 		assertThat(mapEvent.getOldValue()).isNull();
 	}
 
