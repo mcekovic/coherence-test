@@ -32,7 +32,7 @@ public class CoherenceMiscPT {
 			.setClusterMemberGroupInstanceClassName(SimpleKeepAliveClusterMemberGroup.class.getName())
 			.setStorageEnabledCount(2)
 			.setCacheConfiguration("top-test-cache-config.xml")
-			.setClientCacheConfiguration("top-test-cache-config.xml")
+			.setClientCacheConfiguration("test-client-cache-config.xml")
 			.buildAndConfigureForStorageDisabledClient();
 		DistributedCacheService service = (DistributedCacheService) CacheFactory.getCache("TestItem").getCacheService();
 		System.out.println("Partitions: " + service.getPartitionCount());
@@ -51,16 +51,16 @@ public class CoherenceMiscPT {
 
 		Filter filter = new EqualsFilter(TestItemPofSerializer.NAME_EXTRACTOR, "Pera");
 		Filter filter2 = new EqualsFilter(TestItemPofSerializer.NAME_EXTRACTOR2, "Pera");
-		ContinuousQueryCache ccCache = new ContinuousQueryCache(cache, filter, DUMMY_LISTENER);
+		NamedCache testCache = new ContinuousQueryCache(cache, filter, DUMMY_LISTENER);
 //		ccCache.setCacheValues(true);
 		
-		testCCQuery(ccCache, WARM_UP_GET_COUNT, null);
+		testCCQuery(cache, WARM_UP_GET_COUNT, null);
 
 		Thread.sleep(1000L);
 		
 		Stopwatch watch = Stopwatch.createStarted();
 
-		testCCQuery(ccCache, GET_COUNT, null);
+		testCCQuery(cache, GET_COUNT, null);
 
 		System.out.println(watch.toString());
 	}
@@ -69,6 +69,7 @@ public class CoherenceMiscPT {
 		for (int j = 0; j < count; j++) {
 			for (int i = 0; i < ITEM_COUNT; i++) {
 				TestItem item = (TestItem)ccCache.get(i);
+//				TestItem item = (TestItem)(ccCache.getAll(singleton(i))).get(i);
 				if (filter != null) {
 					Iterator<Map.Entry> iter = ccCache.entrySet(new InKeySetFilter(filter, singleton(i))).iterator();
 					if (iter.hasNext())

@@ -12,7 +12,7 @@
 	<caching-scheme-mapping>
 		<cache-mapping>
 			<cache-name>TestItem</cache-name>
-			<scheme-name>distributed-cache</scheme-name>
+			<scheme-name>near-cache</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
 			<cache-name>TestItem2</cache-name>
@@ -25,6 +25,20 @@
 	</caching-scheme-mapping>
 
 	<caching-schemes>
+		<near-scheme>
+			<scheme-name>near-cache</scheme-name>
+			<front-scheme>
+				<local-scheme>
+					<scheme-ref>local-cache</scheme-ref>
+				</local-scheme>
+			</front-scheme>
+			<back-scheme>
+				<distributed-scheme>
+					<scheme-ref>distributed-cache</scheme-ref>
+				</distributed-scheme>
+			</back-scheme>
+		</near-scheme>
+
 		<distributed-scheme>
 			<scheme-name>distributed-cache</scheme-name>
 			<service-name>distributed-cache-service</service-name>
@@ -63,7 +77,7 @@
 			<scheme-name>local-cache</scheme-name>
 			<eviction-policy>HYBRID</eviction-policy>
 			<high-units>{back-size-limit 0}</high-units>
-			<unit-calculator>BINARY</unit-calculator>
+			<unit-calculator>FIXED</unit-calculator>
 			<!-- cached data never expire -->
 			<expiry-delay>0</expiry-delay>
 		</local-scheme>
