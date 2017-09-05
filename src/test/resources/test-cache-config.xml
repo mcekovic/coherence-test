@@ -15,11 +15,11 @@
 			<scheme-name>distributed-cache</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
-			<cache-name>TestItem2</cache-name>
+			<cache-name>TestItemNear</cache-name>
 			<scheme-name>distributed-cache</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
-			<cache-name>TestItem3</cache-name>
+			<cache-name>TestItemNearAll</cache-name>
 			<scheme-name>distributed-cache</scheme-name>
 		</cache-mapping>
 		<cache-mapping>

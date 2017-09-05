@@ -5,8 +5,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<bean id="storeTestItem" class="org.strangeforest.test.coherence.TestItemStore"/>
-	<bean id="storeTestItem2" class="org.strangeforest.test.coherence.TestItemStore"/>
-	<bean id="storeTestItem3" class="org.strangeforest.test.coherence.TestItemStore"/>
+	<bean id="storeTestItemNear" class="org.strangeforest.test.coherence.TestItemStore"/>
+	<bean id="storeTestItemNearAll" class="org.strangeforest.test.coherence.TestItemStore"/>
 	<bean id="storeBigItem" class="org.strangeforest.test.coherence.BigItemStore"/>
 
 </beans>

@@ -12,14 +12,14 @@
 	<caching-scheme-mapping>
 		<cache-mapping>
 			<cache-name>TestItem</cache-name>
-			<scheme-name>near-cache</scheme-name>
-		</cache-mapping>
-		<cache-mapping>
-			<cache-name>TestItem2</cache-name>
 			<scheme-name>remote-cache</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
-			<cache-name>TestItem3</cache-name>
+			<cache-name>TestItemNear</cache-name>
+			<scheme-name>near-cache</scheme-name>
+		</cache-mapping>
+		<cache-mapping>
+			<cache-name>TestItemNearAll</cache-name>
 			<scheme-name>near-cache-all</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
@@ -41,7 +41,6 @@
 					<scheme-ref>remote-cache</scheme-ref>
 				</remote-cache-scheme>
 			</back-scheme>
-			<invalidation-strategy>present</invalidation-strategy>
 		</near-scheme>
 
 		<near-scheme>

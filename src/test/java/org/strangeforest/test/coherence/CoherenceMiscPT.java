@@ -21,7 +21,7 @@ public class CoherenceMiscPT {
 	private static final int ITEM_COUNT     = 10000;
 
 	private static final int WARM_UP_GET_COUNT = 10;
-	private static final int GET_COUNT      = 100000;
+	private static final int GET_COUNT      = 1000;
 
 	@BeforeClass
 	public void startGrid() {
@@ -36,9 +36,9 @@ public class CoherenceMiscPT {
 			.buildAndConfigureForExtendClient();
 //		DistributedCacheService service = (DistributedCacheService) CacheFactory.getCache("TestItem").getCacheService();
 //		System.out.println("Partitions: " + service.getPartitionCount());
-		createFixture("TestItem");
-		createFixture("TestItem2");
-		createFixture("TestItem3");
+		createFixture("TestItem", "Pera");
+		createFixture("TestItemNear", "Pera");
+		createFixture("TestItemNearAll", "Pera");
 	}
 
 	@AfterClass
@@ -48,32 +48,32 @@ public class CoherenceMiscPT {
 
 	@Test
 	public void nearCachePresentGetById() throws InterruptedException {
-		cacheGetById("nearCachePresentGetById", "TestItem", false, WARM_UP_GET_COUNT, GET_COUNT);
+		cacheGetById("nearCachePresentGetById", "TestItemNear", false, WARM_UP_GET_COUNT, GET_COUNT);
 	}
 
 	@Test
 	public void nearCacheAllGetById() throws InterruptedException {
-		cacheGetById("nearCacheAllGetById", "TestItem3", false, WARM_UP_GET_COUNT, GET_COUNT);
+		cacheGetById("nearCacheAllGetById", "TestItemNearAll", false, WARM_UP_GET_COUNT, GET_COUNT);
 	}
 
 	@Test(enabled = false)
 	public void cacheGetById() throws InterruptedException {
-		cacheGetById("cacheGetById", "TestItem2", false, WARM_UP_GET_COUNT/10, GET_COUNT/1000);
+		cacheGetById("cacheGetById", "TestItem", false, WARM_UP_GET_COUNT/10, GET_COUNT/1000);
 	}
 
 	@Test(enabled = false)
-	public void cqcNearCachePresentGetById() throws InterruptedException {
-		cacheGetById("cqcNearCachePresentGetById", "TestItem", true, WARM_UP_GET_COUNT, GET_COUNT);
+	public void cqcNearCacheGetById() throws InterruptedException {
+		cacheGetById("cqcNearCacheGetById", "TestItemNear", true, WARM_UP_GET_COUNT, GET_COUNT);
 	}
 
 	@Test(enabled = false)
 	public void cqcNearCacheAllGetById() throws InterruptedException {
-		cacheGetById("cqcNearCacheAllGetById", "TestItem3", true, WARM_UP_GET_COUNT, GET_COUNT);
+		cacheGetById("cqcNearCacheAllGetById", "TestItemNear", true, WARM_UP_GET_COUNT, GET_COUNT);
 	}
 
 	@Test(enabled = false)
 	public void cqcCacheGetById() throws InterruptedException {
-		cacheGetById("cqcCacheGetById", "TestItem2", true, WARM_UP_GET_COUNT, GET_COUNT);
+		cacheGetById("cqcCacheGetById", "TestItem", true, WARM_UP_GET_COUNT, GET_COUNT);
 	}
 
 	private void cacheGetById(String name, String cacheName, boolean cqc, int warmUpCount, int count) throws InterruptedException {
@@ -88,13 +88,13 @@ public class CoherenceMiscPT {
 			cache = cqCache;
 		}
 
-		testCacheGet(cache, warmUpCount, null);
+		testCacheGet(cache, warmUpCount, null, Stopwatch.createStarted());
 
 		Thread.sleep(1000L);
 		
 		Stopwatch watch = Stopwatch.createStarted();
 
-		testCacheGet(cache, count, null);
+		testCacheGet(cache, count, null, watch);
 
 		System.out.println(watch.toString());
 		long totalCount = ITEM_COUNT * count;
@@ -103,14 +103,19 @@ public class CoherenceMiscPT {
 		System.out.println(watch.elapsed(TimeUnit.NANOSECONDS)/totalCount + "ns");
 	}
 
-	private static void createFixture(String cacheName) {
+	private static void createFixture(String cacheName, String value) {
 		NamedCache cache = CacheFactory.getCache(cacheName);
 		for (int i = 0; i < ITEM_COUNT; i++)
-			cache.put(i, new TestItem(i, "Pera"));
+			cache.put(i, new TestItem(i, value));
 	}
 
-	private void testCacheGet(NamedCache cache, int count, Filter filter) {
+	private void testCacheGet(NamedCache cache, int count, Filter filter, Stopwatch watch) {
 		for (int j = 0; j < count; j++) {
+			if (j > 0 && j % 2 == 0) {
+				watch.stop();
+				createFixture(cache.getCacheName(), "Pera" + j / 10);
+				watch.start();
+			}
 			for (int i = 0; i < ITEM_COUNT; i++) {
 				TestItem item = (TestItem)cache.get(i);
 				assertThat(item).isNotNull();
