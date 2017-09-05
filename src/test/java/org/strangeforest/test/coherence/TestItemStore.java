@@ -20,7 +20,7 @@ public class TestItemStore extends AbstractCacheStore {
 
 	@Override public void store(Object key, Object value) {
 		storeCount++;
-		System.out.println(format("Storing [%1$s:%2$s]", key, value));
+//		System.out.println(format("Storing [%1$s:%2$s]", key, value));
 	}
 
 	public int getLoadCount() {

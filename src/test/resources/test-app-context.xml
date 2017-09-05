@@ -6,6 +6,7 @@
 
 	<bean id="storeTestItem" class="org.strangeforest.test.coherence.TestItemStore"/>
 	<bean id="storeTestItem2" class="org.strangeforest.test.coherence.TestItemStore"/>
+	<bean id="storeTestItem3" class="org.strangeforest.test.coherence.TestItemStore"/>
 	<bean id="storeBigItem" class="org.strangeforest.test.coherence.BigItemStore"/>
 
 </beans>

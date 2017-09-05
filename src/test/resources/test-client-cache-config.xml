@@ -16,11 +16,15 @@
 		</cache-mapping>
 		<cache-mapping>
 			<cache-name>TestItem2</cache-name>
-			<scheme-name>distributed-cache</scheme-name>
+			<scheme-name>remote-cache</scheme-name>
+		</cache-mapping>
+		<cache-mapping>
+			<cache-name>TestItem3</cache-name>
+			<scheme-name>near-cache-all</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
 			<cache-name>BigItem</cache-name>
-			<scheme-name>distributed-cache</scheme-name>
+			<scheme-name>remote-cache</scheme-name>
 		</cache-mapping>
 	</caching-scheme-mapping>
 
@@ -33,10 +37,26 @@
 				</local-scheme>
 			</front-scheme>
 			<back-scheme>
-				<distributed-scheme>
-					<scheme-ref>distributed-cache</scheme-ref>
-				</distributed-scheme>
+				<remote-cache-scheme>
+					<scheme-ref>remote-cache</scheme-ref>
+				</remote-cache-scheme>
 			</back-scheme>
+			<invalidation-strategy>present</invalidation-strategy>
+		</near-scheme>
+
+		<near-scheme>
+			<scheme-name>near-cache-all</scheme-name>
+			<front-scheme>
+				<local-scheme>
+					<scheme-ref>local-cache</scheme-ref>
+				</local-scheme>
+			</front-scheme>
+			<back-scheme>
+				<remote-cache-scheme>
+					<scheme-ref>remote-cache</scheme-ref>
+				</remote-cache-scheme>
+			</back-scheme>
+			<invalidation-strategy>all</invalidation-strategy>
 		</near-scheme>
 
 		<distributed-scheme>
@@ -53,33 +73,49 @@
 					</init-params>
 				</instance>
 			</serializer>
-			<thread-count>4</thread-count>
-			<backing-map-scheme>
-				<read-write-backing-map-scheme>
-					<internal-cache-scheme>
-						<local-scheme>
-							<scheme-ref>local-cache</scheme-ref>
-						</local-scheme>
-					</internal-cache-scheme>
-					<cachestore-scheme>
-						<class-scheme>
-							<spring:bean>
-								<spring:bean-name>store{cache-name}</spring:bean-name>
-							</spring:bean>
-						</class-scheme>
-					</cachestore-scheme>
-				</read-write-backing-map-scheme>
-			</backing-map-scheme>
 			<autostart>true</autostart>
 		</distributed-scheme>
+
+		<remote-cache-scheme>
+			<scheme-name>remote-cache</scheme-name>
+			<service-name>remote-service</service-name>
+			<initiator-config>
+				<tcp-initiator>
+					<remote-addresses>
+						<socket-address>
+							<address system-property="tangosol.coherence.extend.address">localhost</address>
+							<port>9099</port>
+						</socket-address>
+						<socket-address>
+							<address system-property="tangosol.coherence.extend.address">localhost</address>
+							<port>9100</port>
+						</socket-address>
+					</remote-addresses>
+				</tcp-initiator>
+				<outgoing-message-handler>
+					<request-timeout>5s</request-timeout>
+				</outgoing-message-handler>
+				<serializer>
+					<instance>
+						<class-name>com.tangosol.io.pof.SafeConfigurablePofContext</class-name>
+						<init-params>
+							<init-param>
+								<param-type>String</param-type>
+								<param-value>test-pof-config.xml</param-value>
+							</init-param>
+						</init-params>
+					</instance>
+				</serializer>
+				<connect-timeout>10s</connect-timeout>
+			</initiator-config>
+		</remote-cache-scheme>
 
 		<local-scheme>
 			<scheme-name>local-cache</scheme-name>
 			<eviction-policy>HYBRID</eviction-policy>
-			<high-units>{back-size-limit 0}</high-units>
+			<high-units>20000</high-units>
 			<unit-calculator>FIXED</unit-calculator>
-			<!-- cached data never expire -->
-			<expiry-delay>0</expiry-delay>
+			<expiry-delay>1h</expiry-delay>
 		</local-scheme>
 	</caching-schemes>
 </cache-config>

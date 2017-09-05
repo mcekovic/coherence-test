@@ -21,6 +21,7 @@ public class Entity5PofSerializer implements PofSerializer {
 		out.writeLong(ID, entity.getId());
 		out.writeString(NAME, entity.getName());
 		out.writeString(DESCRIPTION, entity.getDescription());
+		out.writeObject(CATEGORY, String.valueOf(entity.getCategory()));
 		out.writeInt(CATEGORY_INT, entity.getCategory());
 		out.writeString(TYPE, entity.getType());
 		out.writeRemainder(entity.getFutureData());

@@ -19,6 +19,10 @@
 			<scheme-name>distributed-cache</scheme-name>
 		</cache-mapping>
 		<cache-mapping>
+			<cache-name>TestItem3</cache-name>
+			<scheme-name>distributed-cache</scheme-name>
+		</cache-mapping>
+		<cache-mapping>
 			<cache-name>BigItem</cache-name>
 			<scheme-name>distributed-cache</scheme-name>
 		</cache-mapping>
@@ -59,12 +63,36 @@
 			<autostart>true</autostart>
 		</distributed-scheme>
 
+		<proxy-scheme>
+			<service-name>ExtendTcpProxyService</service-name>
+			<thread-count>5</thread-count>
+			<acceptor-config>
+				<tcp-acceptor>
+					<local-address>
+						<address system-property="tangosol.coherence.extend.address">localhost</address>
+						<port system-property="tangosol.coherence.extend.port">9099</port>
+					</local-address>
+				</tcp-acceptor>
+				<serializer>
+					<instance>
+						<class-name>com.tangosol.io.pof.SafeConfigurablePofContext</class-name>
+						<init-params>
+							<init-param>
+								<param-type>String</param-type>
+								<param-value>test-pof-config.xml</param-value>
+							</init-param>
+						</init-params>
+					</instance>
+				</serializer>
+			</acceptor-config>
+			<autostart system-property="tangosol.coherence.extend.enabled">false</autostart>
+		</proxy-scheme>
+
 		<local-scheme>
 			<scheme-name>local-cache</scheme-name>
 			<eviction-policy>HYBRID</eviction-policy>
 			<high-units>{back-size-limit 0}</high-units>
 			<unit-calculator>BINARY</unit-calculator>
-			<!-- cached data never expire -->
 			<expiry-delay>0</expiry-delay>
 		</local-scheme>
 	</caching-schemes>
