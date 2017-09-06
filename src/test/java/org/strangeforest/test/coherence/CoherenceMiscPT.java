@@ -1,5 +1,6 @@
 package org.strangeforest.test.coherence;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 import org.littlegrid.*;
@@ -16,12 +17,19 @@ import static org.assertj.core.api.Assertions.*;
 
 public class CoherenceMiscPT {
 
+	// Near Cache Invalidation Strategy
+	// 0 - None
+	//	1 - Present
+	//	2 - All
+	//	3 - Auto
+	//	4 - Logical
+
 	private ClusterMemberGroup cluster;
 
-	private static final int ITEM_COUNT     = 10000;
+	private static final long ITEM_COUNT     = 30000;
 
-	private static final int WARM_UP_GET_COUNT = 10;
-	private static final int GET_COUNT      = 1000;
+	private static final int WARM_UP_GET_COUNT = 1;
+	private static final int GET_COUNT      = 2;
 
 	@BeforeClass
 	public void startGrid() {
@@ -84,9 +92,27 @@ public class CoherenceMiscPT {
 //		   Filter filter = new EqualsFilter(TestItemPofSerializer.NAME_EXTRACTOR, "Pera");
 //		   Filter filter2 = new EqualsFilter(TestItemPofSerializer.NAME_EXTRACTOR2, "Pera");
 			ContinuousQueryCache cqCache = new ContinuousQueryCache(cache, AlwaysFilter.INSTANCE, DUMMY_LISTENER);
-//			cqCache.setCacheValues(true);
+			cqCache.setCacheValues(true);
 			cache = cqCache;
 		}
+		else {
+		   Filter filter = new MapEventFilter(MapEventFilter.E_DELETED | MapEventFilter.E_INSERTED | MapEventFilter.E_UPDATED, new EqualsFilter(TestItemPofSerializer.NAME_EXTRACTOR, "Pera"));
+			cache.addMapListener(new MapListener() {
+				@Override public void entryInserted(MapEvent mapEvent) {
+
+				}
+
+				@Override public void entryUpdated(MapEvent mapEvent) {
+
+				}
+
+				@Override public void entryDeleted(MapEvent mapEvent) {
+
+				}
+			}, filter, false);
+		}
+
+
 
 		testCacheGet(cache, warmUpCount, null, Stopwatch.createStarted());
 
@@ -105,20 +131,23 @@ public class CoherenceMiscPT {
 
 	private static void createFixture(String cacheName, String value) {
 		NamedCache cache = CacheFactory.getCache(cacheName);
-		for (int i = 0; i < ITEM_COUNT; i++)
+		for (long i = 0; i < ITEM_COUNT; i++)
 			cache.put(i, new TestItem(i, value));
 	}
 
 	private void testCacheGet(NamedCache cache, int count, Filter filter, Stopwatch watch) {
 		for (int j = 0; j < count; j++) {
-			if (j > 0 && j % 2 == 0) {
-				watch.stop();
-				createFixture(cache.getCacheName(), "Pera" + j / 10);
-				watch.start();
-			}
-			for (int i = 0; i < ITEM_COUNT; i++) {
-				TestItem item = (TestItem)cache.get(i);
-				assertThat(item).isNotNull();
+//			if (j > 0 && j % 2 == 0) {
+//				watch.stop();
+//				createFixture(cache.getCacheName(), "Pera" + j / 10);
+//				watch.start();
+//			}
+			for (long i = 0; i < ITEM_COUNT; i++) {
+//				TestItem item = (TestItem)cache.get(i);
+//				assertThat(item).isNotNull();
+//				Map<Long, TestItem> items = (Map<Long, TestItem>)cache.getAll(Arrays.asList(i, i+1, i+2, i+3, i+4));
+				Map<Long, TestItem> items = (Map<Long, TestItem>)cache.getAll(Arrays.asList(i, i, i, i, i));
+				assertThat(items).isNotEmpty();
 //				TestItem item = (TestItem)(ccCache.getAll(singleton(i))).get(i);
 //				if (filter != null) {
 //					Iterator<Map.Entry> iter = ccCache.entrySet(new InKeySetFilter(filter, singleton(i))).iterator();
