@@ -1,5 +1,6 @@
 package org.strangeforest.test.coherence;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 import org.littlegrid.*;
@@ -7,10 +8,13 @@ import org.littlegrid.impl.*;
 import org.mockito.*;
 import org.testng.annotations.*;
 
+import com.tangosol.coherence.transaction.internal.*;
 import com.tangosol.net.*;
 import com.tangosol.net.cache.*;
 import com.tangosol.util.*;
+import com.tangosol.util.filter.*;
 
+import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -140,14 +144,61 @@ public class CoherenceMiscIT {
 	}
 
 	@Test
+	public void whenMapListenerIsAddedUpdatedItemsAreNotified() throws InterruptedException {
+		NamedCache cache = CacheFactory.getCache("TestItem");
+		cache.put(6,  new TestItem(6, "Pera6"));
+
+		Semaphore semaphore = new Semaphore(0);
+		MapListener listener = spy(new ReleasingMapListener(semaphore));
+		try {
+			cache.addMapListener(listener);
+			cache.put(6,  new TestItem(6, "Pera6a"));
+
+			assertThat(semaphore.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
+			ArgumentCaptor<MapEvent> mapEventCaptor = ArgumentCaptor.forClass(MapEvent.class);
+			verify(listener).entryUpdated(mapEventCaptor.capture());
+			verifyZeroInteractions(listener);
+			MapEvent mapEvent = mapEventCaptor.getValue();
+			assertThat(mapEvent).isNotNull();
+			assertThat(mapEvent.getKey()).isEqualTo(6);
+			assertThat(((TestItem)mapEvent.getNewValue()).getName()).isEqualTo("Pera6a");
+			assertThat(((TestItem)mapEvent.getOldValue()).getName()).isEqualTo("Pera6");
+		}
+		finally {
+			cache.removeMapListener(listener);
+		}
+	}
+
+	@Test
+	public void whenMapListenerIsAddedUpdatedItemsOutsideOfFilterAreNotNotified() throws InterruptedException {
+		NamedCache cache = CacheFactory.getCache("TestItem");
+		cache.put(7,  new TestItem(7, "Pera7"));
+
+		Semaphore semaphore = new Semaphore(0);
+		MapListener listener = spy(new ReleasingMapListener(semaphore));
+		try {
+			cache.addMapListener(listener, new MapEventFilter(MapEventFilter.E_UPDATED,
+				new EqualsFilter(TestItemPofSerializer.NAME_EXTRACTOR, "Pera")
+			), false);
+			cache.put(7,  new TestItem(7, "Pera7a"));
+
+			assertThat(semaphore.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse();
+			verifyZeroInteractions(listener);
+		}
+		finally {
+			cache.removeMapListener(listener);
+		}
+	}
+
+	@Test
 	public void whenNewItemsAreAddedContinuousQueryIsNotified() throws InterruptedException {
 		NamedCache cache = CacheFactory.getCache("TestItem2");
-		cache.put(5,  new TestItem(5, "Pera6"));
+		cache.put(1,  new TestItem(1, "Pera"));
 
 		Semaphore semaphore = new Semaphore(0);
 		MapListener listener = spy(new ReleasingMapListener(semaphore));
 		ContinuousQueryCache ccCache = new ContinuousQueryCache(cache, new NullFilter(), listener);
-		cache.put(6,  new TestItem(6, "Pera7"));
+		cache.put(2,  new TestItem(2, "Pera2"));
 
 		assertThat(semaphore.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
 
@@ -155,8 +206,8 @@ public class CoherenceMiscIT {
 		verify(listener, times(2)).entryInserted(mapEventCaptor.capture());
 		MapEvent mapEvent = mapEventCaptor.getValue();
 		assertThat(mapEvent).isNotNull();
-		assertThat(mapEvent.getKey()).isEqualTo(6);
-		assertThat(((TestItem)mapEvent.getNewValue()).getName()).isEqualTo("Pera7");
+		assertThat(mapEvent.getKey()).isEqualTo(2);
+		assertThat(((TestItem)mapEvent.getNewValue()).getName()).isEqualTo("Pera2");
 		assertThat(mapEvent.getOldValue()).isNull();
 	}
 
